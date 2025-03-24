@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+I am creating a directory outside of the project, let's call it `vendors` and creating a symlink from `app/vendor` to one of these vendors in this external directory. However, when navigating to a page.tsx inside one of these directories it just results in 404 being shown in the browser.
 
-## Getting Started
+I've tried to trace the code and it seems to be resolving the symlinks correctly in the `next\dist\lib\recursive-readdir.js` file inside the `recursiveReadDir` function. When testing whether a link is a directory or a pathname it correctly (seemingly) ends up in the directories array.
 
-First, run the development server:
+![image](https://github.com/user-attachments/assets/bd5c72d1-e491-44df-a4dd-c8c7d564487b)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+I've created a minimal reproduction of the issue and linked the repo to this discussion. 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Steps to reproduce:**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repo attached
+2. `npm i`
+3. Navigate to `src\apps` in the command line
+4. Create a symlink in Windows by running `mklink /D vendor ..\..\vendors\test-vendor-1` or in Unix with `ln -s ../../vendors/test-vendor-1 vendor`
+5. `npm run dev`
+6. Navigate to http://localhost:3000/vendor/posts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Observe the following:
 
-## Learn More
+![image](https://github.com/user-attachments/assets/c19149f4-57f3-49d0-8ef2-f940943976ec)
 
-To learn more about Next.js, take a look at the following resources:
+If you remove the symlink and paste the vendor files directly into the `app/vendor` folder you observe:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+![image](https://github.com/user-attachments/assets/b56c3010-1a53-4b0c-84a0-ff601816ca7a)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+[Link to repo with reproduction.](https://github.com/snivels/symlinks-not-working)
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
